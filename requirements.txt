@@ -1,0 +1,13 @@
+st-annotated-text
+bs4 
+torch
+fastapi
+uvicorn
+protobuf~=3.19.0
+nltk
+spacy
+errant
+sentencepiece
+transformers
+nltk>=3.6
+streamlit
