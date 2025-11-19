@@ -22,7 +22,7 @@
 
 ## Overview
 
-Grammify implements an advanced grammar correction system designed to enhance written communication across professional, academic, and personal contexts. Built on the Gramformer library and powered by the T5-based `prithivida/grammar_error_correcter_v1` model, the system processes natural language input through a transformer architecture to identify and correct diverse grammatical errors with high accuracy and contextual awareness.
+Grammify implements an advanced grammar correction system designed to enhance written communication across professional, academic, and personal contexts. Built on the Gramformer library and powered by a custom T5-based model, the system processes natural language input through a transformer architecture to identify and correct diverse grammatical errors with high accuracy and contextual awareness.
 
 **Technical Context:** Full-stack NLP application integrating FastAPI microservices, Streamlit frontend, and Hugging Face Transformers for production-grade grammar correction.
 
@@ -66,7 +66,7 @@ The system corrects 15+ grammatical error types with high linguistic precision:
 ### Model Specifications
 ```
 Model Architecture:     T5-based Seq2Seq Transformer
-Model Tag:             prithivida/grammar_error_correcter_v1
+Model Tag:             Custom fine-tuned model
 Tokenizer:             AutoTokenizer (SentencePiece)
 Maximum Sequence:      128 tokens
 Sampling Strategy:     Top-k (50) + Top-p (0.95)
@@ -375,7 +375,7 @@ requests             # HTTP client
 
 ```python
 # Model initialization
-correction_model_tag = "prithivida/grammar_error_correcter_v1"
+correction_model_tag = "custom_grammar_model"
 correction_tokenizer = AutoTokenizer.from_pretrained(correction_model_tag)
 correction_model = AutoModelForSeq2SeqLM.from_pretrained(correction_model_tag)
 
