@@ -13,9 +13,11 @@ import errant
 import time
 import os
 
+
 def start_server():   
     os.system("python3 -m spacy download en_core_web_sm")
     os.system("uvicorn InferenceServer:app --port 8080 --host 0.0.0.0 --workers 2")
+
 
 def load_models():
     if not is_port_in_use(8080):
@@ -29,10 +31,12 @@ def load_models():
         st.success("Model server already running...")
     st.session_state['models_loaded'] = True
 
+
 def is_port_in_use(port):
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('0.0.0.0', port)) == 0
+
 
 if 'models_loaded' not in st.session_state:
     st.session_state['models_loaded'] = False
@@ -42,7 +46,14 @@ def show_highlights(input_text, corrected_sentence):
     try:
         strikeout = lambda x: '\u0336'.join(x) + '\u0336'
         highlight_text = highlight(input_text, corrected_sentence)
-        color_map = {'d':'#faa', 'a':'#afa', 'c':'#fea'}
+        
+        # Updated colors for better visibility on both themes
+        color_map = {
+            'd': '#ff6b6b',  # Soft red for deletions (works on both themes)
+            'a': '#51cf66',  # Soft green for additions (works on both themes)
+            'c': '#ffd43b'   # Soft yellow for changes (works on both themes)
+        }
+        
         tokens = re.split(r'(<[dac]\s.*?<\/[dac]>)', highlight_text)
         annotations = []
         for token in tokens:
@@ -65,6 +76,7 @@ def show_highlights(input_text, corrected_sentence):
         st.error('Some error occured!' + str(e))
         st.stop()
 
+
 def show_edits(input_text, corrected_sentence):
     try:
         edits = get_edits(input_text, corrected_sentence)
@@ -74,6 +86,7 @@ def show_edits(input_text, corrected_sentence):
     except Exception as e:
         st.error('Some error occured!')
         st.stop()
+
 
 def highlight(orig, cor):
       edits = _get_edits(orig, cor)
@@ -139,8 +152,10 @@ def _get_edits(orig, cor):
     else:    
         return []
 
+
 def get_edits(orig, cor):
     return _get_edits(orig, cor)        
+
 
 def get_correction(input_text):
     correct_request = "http://0.0.0.0:8080/correct?input_sentence="+input_text
@@ -154,6 +169,14 @@ def get_correction(input_text):
     st.success(corrected_sentence)
     exp1 = st.expander(label='Show highlights', expanded=True)
     with exp1:
+        # Add legend for color coding
+        st.markdown("""
+        <div style='margin-bottom: 10px; font-size: 0.9em;'>
+            <span style='background-color: #ff6b6b; padding: 2px 6px; border-radius: 3px; margin-right: 10px;'>🗑️ Deletion</span>
+            <span style='background-color: #51cf66; padding: 2px 6px; border-radius: 3px; margin-right: 10px;'>➕ Addition</span>
+            <span style='background-color: #ffd43b; padding: 2px 6px; border-radius: 3px;'>🔄 Change</span>
+        </div>
+        """, unsafe_allow_html=True)
         show_highlights(input_text, corrected_sentence)
     exp2 = st.expander(label='Show edits')
     with exp2:
@@ -162,19 +185,28 @@ def get_correction(input_text):
         
 if __name__ == "__main__":
     
-        st.title('Gramformer - A Python library')
-        st.subheader('To detect and correct grammar errors')
-        st.markdown("Built with 💙  by Prithivi Da, The maker of [WhatTheFood](https://huggingface.co/spaces/prithivida/WhatTheFood), [Styleformer](https://github.com/PrithivirajDamodaran/Styleformer) and [Parrot paraphraser](https://github.com/PrithivirajDamodaran/Parrot_Paraphraser) | [Checkout the GitHub page for details](https://github.com/PrithivirajDamodaran/Gramformer) | ✍️ [@prithivida](https://twitter.com/prithivida) ", unsafe_allow_html=True)
-        st.markdown("<p style='color:blue; display:inline'> Integrate with your app with just 2 lines of code </p>", unsafe_allow_html=True)
-        st.markdown("""
-                    ```python 
-                    gf = Gramformer(models = 1, use_gpu=False)
-                    corrected_sentences = gf.correct(influent_sentence, max_candidates=1)
-                    ```    
-                    """)
+        st.title('Grammify - AI-Powered Grammar Correction')
+        st.subheader('Intelligent grammar error detection and correction using Transformer models')
+        st.markdown("Built by **Muhammad Abdullah Rasheed** | [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-blue)](https://techvibes360.com) [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/abdullahrasheed-/) [![GitHub](https://img.shields.io/badge/GitHub-Follow-black)](https://github.com/Abdullahrasheed45)", unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Feature highlights
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("🎯 **High Accuracy**")
+            st.caption("T5-based Seq2Seq model")
+        with col2:
+            st.markdown("⚡ **Real-time**")
+            st.caption("Fast inference engine")
+        with col3:
+            st.markdown("🔍 **Detailed Analysis**")
+            st.caption("Visual error breakdown")
+        
+        st.markdown("---")
 
         examples = [
-                     "what be the reason for everyone leave the comapny",
+                     "what be the reason for everyone leave the company",
                     "They're house is on fire",
                     "Look if their is fire on the top",
                     "Where is you're car?",
@@ -187,7 +219,7 @@ if __name__ == "__main__":
                     "Matt like fish",
                     "We enjoys horror movies",
                     "I walk to the store and I bought milk",
-                    " We all eat the fish and then made dessert",
+                    "We all eat the fish and then made dessert",
                     ]
 
         if not st.session_state['models_loaded']:
@@ -197,7 +229,7 @@ if __name__ == "__main__":
         nlp = en_core_web_sm.load()
         annotator = errant.load('en', nlp)
 
-        st.markdown(f'##### Try it now:')
+        st.markdown(f'### Try it now:')
         input_text = st.selectbox(
         label="Choose an example",
         options=examples
@@ -210,3 +242,12 @@ if __name__ == "__main__":
 
         if input_text.strip(): 
             get_correction(input_text)
+        
+        # Footer
+        st.markdown("---")
+        st.markdown("""
+        <div style='text-align: center; color: gray; font-size: 0.9em;'>
+            <p>Powered by Transformers & FastAPI | Deployed on Hugging Face Spaces</p>
+            <p>© 2024 Muhammad Abdullah Rasheed</p>
+        </div>
+        """, unsafe_allow_html=True)
